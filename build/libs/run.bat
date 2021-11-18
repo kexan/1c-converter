@@ -1,0 +1,1 @@
+java -jar 1c-converter-1.0-SNAPSHOT-all.jar

@@ -1,0 +1,1 @@
+C:\Users\KEXA7\IdeaProjects\1c-converter\build\classes\kotlin\main\Main.class;C:\Users\KEXA7\IdeaProjects\1c-converter\build\classes\kotlin\main\image\Converter.class
