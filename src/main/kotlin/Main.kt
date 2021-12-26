@@ -1,36 +1,44 @@
 package ru.kexan
 
 import java.awt.Toolkit
-import java.awt.datatransfer.Clipboard
-import java.awt.datatransfer.DataFlavor
+
+import java.awt.datatransfer.DataFlavor.stringFlavor
 import java.awt.datatransfer.StringSelection
-import java.awt.datatransfer.Transferable
 import java.util.*
+
 
 fun main() {
     while (true) {
         val scanner = Scanner(System.`in`)
+        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+
         println("Выберите режим:\n1. Для клиентов\n2. Прайс\n3. Тест")
         val mode = scanner.nextInt()
+        println("Прогу можно свернуть, просто копируйте текст")
+
         while (scanner.nextLine() != "end") {
-            println("Скопируй текст в буфер и нажми Enter для конвертации:")
-            scanner.nextLine()
-            val convertedText = convert(
-                Toolkit.getDefaultToolkit()
-                    .systemClipboard.getData(DataFlavor.stringFlavor) as String, mode
-            )
-            println(convertedText)
-            val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-            val transferable: Transferable = StringSelection(convertedText)
-            clipboard.setContents(transferable, null)
-            println("Текст скопирован обратно в буфер. Нажми Enter для повторной конвертации или 'end' для выбора режима'")
+            var fixmepls = true
+            clipboard.addFlavorListener { e ->
+                //адский костыль
+                fixmepls = !fixmepls
+                if (!fixmepls) {
+                    clipboard.setContents(
+                        StringSelection(convert(clipboard.getData(stringFlavor) as String, mode)), null
+                    )
+                }
+            }
         }
+
     }
 }
 
 fun convert(text: String, mode: Int): String {
-    val convertedText: List<String>
 
+    if (!text.contains("НФ-")) {
+        return text
+    }
+
+    val convertedText: List<String>
     when (mode) {
         1 -> {
             convertedText = text.replace("(1)", "")
@@ -63,16 +71,19 @@ fun convert(text: String, mode: Int): String {
                 .replace("шт", "-")
                 .replace(",0", " шт")
                 .split("\n")
-                .filter { it.contains("(1)") ||
-                        it.contains("(2)") ||
-                        it.contains("(3)") ||
-                        it.contains("(4)") }
+                .filter {
+                    it.contains("(1)") ||
+                            it.contains("(2)") ||
+                            it.contains("(3)") ||
+                            it.contains("(4)")
+                }
                 .filterNot { it.contains("шт") }
         }
     }
     var formattedText = ""
     for (string in convertedText) {
-        formattedText += if (mode != 3) "$string р.\n" else "$string\n"
+        val formattedString = string.substring(12)
+        formattedText += if (mode != 3) "$formattedString р.\n" else "$formattedString \n"
     }
     return formattedText
 }
