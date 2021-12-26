@@ -4,6 +4,7 @@ import java.awt.Toolkit
 
 import java.awt.datatransfer.DataFlavor.stringFlavor
 import java.awt.datatransfer.StringSelection
+import java.lang.Thread.sleep
 import java.util.*
 
 
@@ -18,13 +19,14 @@ fun main() {
 
         while (scanner.nextLine() != "end") {
             var fixmepls = true
-            clipboard.addFlavorListener { e ->
+            clipboard.addFlavorListener {
                 //адский костыль
+                val clipboardContent = convert(clipboard.getData(stringFlavor) as String, mode)
                 fixmepls = !fixmepls
+                sleep(50)
                 if (!fixmepls) {
-                    clipboard.setContents(
-                        StringSelection(convert(clipboard.getData(stringFlavor) as String, mode)), null
-                    )
+                    clipboard.setContents(StringSelection(clipboardContent), null)
+                    println(clipboardContent)
                 }
             }
         }
