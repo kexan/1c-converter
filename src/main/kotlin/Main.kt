@@ -11,22 +11,18 @@ import java.util.*
 
 
 fun main() {
-
     val scanner = Scanner(System.`in`)
     val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-    var boolean = false
-
     clipboard.addFlavorListener {
         try {
-            boolean = !boolean
-            //FIXME два раза вызывается листенер т.к. в нем же инфа копируется в буфер, придумать фикс
-            //FIXME Можно попробовать сделать листенер на кей-комбо типа ctrl+c
-            if (boolean) {
-                val clipboardContent = convert(clipboard.getData(stringFlavor) as String)
-                sleep(200)
-                clipboard.setContents(StringSelection(clipboardContent), null)
-                println("\n $clipboardContent \n")
+            val clipboardContent = clipboard.getData(stringFlavor) as String
+            if (!clipboardContent.contains("НФ-")) {
+                return@addFlavorListener
             }
+            val convertedContent = convert(clipboardContent)
+            sleep(200)
+            clipboard.setContents(StringSelection(convertedContent), null)
+            println("$convertedContent \n")
         } catch (e: IllegalStateException) {
             val timestamp = Timestamp(System.currentTimeMillis())
             println("$timestamp Ошибка! Нет доступа к буферу обмена, пробую еще раз...")
@@ -57,10 +53,6 @@ fun convert(text: String): String {
         .split("\n")
         .toMutableList()
 
-    if (!text.contains("НФ-")) {
-        return text
-    }
-
     convertedText.forEachIndexed { index, string ->
         convertedText[index] = string.substring(12)
             .replace("(1)", "")
@@ -71,7 +63,7 @@ fun convert(text: String): String {
             .replace("(термопакет)", "")
             .replace("(коробочка)", "")
             .replace(",00", "")
-            .replace(" шт", "-") //FIXME удаляет все проявления "шт", надо исправить
+            .replace("шт", "-") //FIXME удаляет все проявления "шт", надо исправить
             .plus(" р. \n")
     }
 
