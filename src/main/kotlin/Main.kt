@@ -16,7 +16,7 @@ fun main() {
     clipboard.addFlavorListener {
         try {
             val clipboardContent = clipboard.getData(stringFlavor) as String
-            if (!clipboardContent.contains("НФ-")) {
+            if (!clipboardContent.contains("00-")) {
                 return@addFlavorListener
             }
             val convertedContent = convert(clipboardContent)
