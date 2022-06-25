@@ -15,7 +15,8 @@ fun main() {
     clipboard.addFlavorListener {
         with(clipboard) {
             try {
-                convertClipboardContents(this)
+                val result = convertClipboardContents(this)
+                print(result)
             } catch (e: IllegalStateException) {
                 val timestamp = Timestamp(System.currentTimeMillis())
                 println("$timestamp Ошибка! Нет доступа к буферу обмена, пробую еще раз...")
@@ -39,7 +40,8 @@ fun main() {
 
 fun convertClipboardContents(clipboard: Clipboard): String {
     val clipboardContent = clipboard.getData(stringFlavor) as String
-    if (!clipboardContent.contains("00-")) {
+    if (!clipboardContent.contains("00-") || clipboardContent.length < 13) {
+        clipboard.setContents(StringSelection(clipboardContent), null)
         return clipboardContent
     }
     val convertedText = clipboardContent
